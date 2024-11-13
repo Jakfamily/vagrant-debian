@@ -8,18 +8,19 @@ create_vm() {
 
     # Choisir Debian comme système d'exploitation
     if ! vagrant box list | grep -q "debian/bookworm64"; then
-        echo "La boîte 'debian/bookworm64' n'est pas installée. Installation en cours..."
+        echo -e "\e[1;33mLa boîte 'debian/bookworm64' n'est pas installée. Installation en cours...\e[0m"
         vagrant box add debian/bookworm64
     else
-        echo "La boîte 'debian/bookworm64' est déjà installée."
+        echo -e "\e[1;32mLa boîte 'debian/bookworm64' est déjà installée.\e[0m"
     fi
     box_name="debian/bookworm64"
 
     # Demander le nom du répertoire à créer
     while true; do
-        read -p "Nom du répertoire pour la VM : " vm_dir
+        echo -e "\e[1;36mNom du répertoire pour la VM : \e[0m"
+        read vm_dir
         if [[ -d "$vm_dir" ]]; then
-            echo "Le répertoire '$vm_dir' existe déjà. Veuillez en choisir un autre."
+            echo -e "\e[1;31mLe répertoire '$vm_dir' existe déjà. Veuillez en choisir un autre.\e[0m"
         else
             mkdir "$vm_dir" && cd "$vm_dir"
             break
@@ -28,9 +29,10 @@ create_vm() {
 
     # Demander le nom de la VM
     while true; do
-        read -p "Nom de la VM : " vm_name
+        echo -e "\e[1;36mNom de la VM : \e[0m"
+        read vm_name
         if [[ -z "$vm_name" ]]; then
-            echo "Le nom de la VM ne peut pas être vide. Veuillez entrer un nom valide."
+            echo -e "\e[1;31mLe nom de la VM ne peut pas être vide. Veuillez entrer un nom valide.\e[0m"
         else
             break
         fi
@@ -38,7 +40,8 @@ create_vm() {
 
     # Demander si une interface graphique est nécessaire
     while true; do
-        read -p "Souhaitez-vous une interface graphique (GUI) de VirtualBox ? [y/n] : " gui_choice
+        echo -e "\e[1;36mSouhaitez-vous une interface graphique (GUI) de VirtualBox ? [y/n] : \e[0m"
+        read gui_choice
         if [[ "$gui_choice" =~ ^[Yy]$ ]]; then
             gui_config="true"
             break
@@ -46,22 +49,24 @@ create_vm() {
             gui_config="false"
             break
         else
-            echo "Veuillez répondre par y ou n."
+            echo -e "\e[1;31mVeuillez répondre par y ou n.\e[0m"
         fi
     done
 
     # Demander adresse publique ou privée
     while true; do
-        read -p "Souhaitez-vous une adresse IP publique ou privée ? (1)public : (2)private : " ip_choice
+        echo -e "\e[1;36mSouhaitez-vous une adresse IP publique ou privée ? (1)public : (2)private : \e[0m"
+        read ip_choice
         case $ip_choice in
             1)
                 while true; do
-                    read -p "Adresse IP publique : " ip_address
+                    echo -e "\e[1;36mAdresse IP publique : \e[0m"
+                    read ip_address
                     if [[ "$ip_address" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
                         network_config="config.vm.network 'public_network', ip: '$ip_address'"
                         break
                     else
-                        echo "Adresse IP invalide. Veuillez entrer une adresse valide."
+                        echo -e "\e[1;31mAdresse IP invalide. Veuillez entrer une adresse valide.\e[0m"
                     fi
                 done
                 break
@@ -71,60 +76,64 @@ create_vm() {
                 break
                 ;;
             *)
-                echo "Option invalide. Veuillez entrer 1 ou 2."
+                echo -e "\e[1;31mOption invalide. Veuillez entrer 1 ou 2.\e[0m"
                 ;;
         esac
     done
 
     # Configuration du provider
-    echo "Choisissez le provider :"
+    echo -e "\e[1;36mChoisissez le provider : \e[0m"
     select provider in "virtualbox" "vmware_desktop" "hyper-v"; do
         case $provider in
             virtualbox|vmware_desktop)
-                echo "Vous avez choisi $provider"
+                echo -e "\e[1;32mVous avez choisi $provider\e[0m"
                 break
                 ;;
             *)
-                echo "Option invalide. Veuillez choisir 1, 2 ou 3."
+                echo -e "\e[1;31mOption invalide. Veuillez choisir 1, 2 ou 3.\e[0m"
                 ;;
         esac
     done
 
     # Configuration de la mémoire
     while true; do
-        read -p "Quantité de mémoire (ex: 1024, 2048, 4096) : " memory
+        echo -e "\e[1;36mQuantité de mémoire (ex: 1024, 2048, 4096) : \e[0m"
+        read memory
         if [[ "$memory" =~ ^[0-9]+$ ]]; then
             break
         else
-            echo "Veuillez entrer un nombre valide."
+            echo -e "\e[1;31mVeuillez entrer un nombre valide.\e[0m"
         fi
     done
 
     # Configuration du nombre de CPU
     while true; do
-        read -p "Nombre de CPU (ex: 1, 2, 4) : " cpu
+        echo -e "\e[1;36mNombre de CPU (ex: 1, 2, 4) : \e[0m"
+        read cpu
         if [[ "$cpu" =~ ^[0-9]+$ ]]; then
             break
         else
-            echo "Veuillez entrer un nombre valide."
+            echo -e "\e[1;31mVeuillez entrer un nombre valide.\e[0m"
         fi
     done
 
     # Demander un nom d'utilisateur et un mot de passe pour l'utilisateur
     while true; do
-        read -p "Nom d'utilisateur à créer : " username
+        echo -e "\e[1;36mNom d'utilisateur à créer : \e[0m"
+        read username
         if [[ -z "$username" ]]; then
-            echo "Le nom d'utilisateur ne peut pas être vide."
+            echo -e "\e[1;31mLe nom d'utilisateur ne peut pas être vide.\e[0m"
         else
             break
         fi
     done
 
     while true; do
-        read -sp "Mot de passe pour $username : " password
+        echo -e "\e[1;36mMot de passe pour $username : \e[0m"
+        read -sp "" password
         echo
         if [[ -z "$password" ]]; then
-            echo "Le mot de passe ne peut pas être vide."
+            echo -e "\e[1;31mLe mot de passe ne peut pas être vide.\e[0m"
         else
             break
         fi
@@ -132,7 +141,8 @@ create_vm() {
 
     # Demander si l'utilisateur veut installer XFCE4
     while true; do
-        read -p "Souhaitez-vous installer XFCE4 ? [y/n] : " xfce_choice
+        echo -e "\e[1;36mSouhaitez-vous installer XFCE4 ? [y/n] : \e[0m"
+        read xfce_choice
         case $xfce_choice in
             [Yy]* )
                 xfce_install="true"
@@ -143,7 +153,7 @@ create_vm() {
                 break
                 ;;
             * )
-                echo "Veuillez répondre par y ou n"
+                echo -e "\e[1;31mVeuillez répondre par y ou n\e[0m"
                 ;;
         esac
     done
@@ -185,22 +195,23 @@ EOF
     vagrant up
 
     # Fin du script
-    echo "Le script est terminé."
+    echo -e "\e[1;32mLe script est terminé.\e[0m"
 
     # Demander si l'utilisateur souhaite lancer la VM
     while true; do
-        read -p "Souhaitez-vous lancer la VM ? [y/n] : " choice
+        echo -e "\e[1;36mSouhaitez-vous lancer la VM ? [y/n] : \e[0m"
+        read choice
         case $choice in
             [Yy]* )
                 cd $vm_dir && vagrant ssh
                 break
                 ;;
             [Nn]* )
-                echo "Passage de l'étape de lancement de la VM..."
+                echo -e "\e[1;33mPassage de l'étape de lancement de la VM...\e[0m"
                 break
                 ;;
             * )
-                echo "Veuillez répondre par y ou n"
+                echo -e "\e[1;31mVeuillez répondre par y ou n\e[0m"
                 ;;
         esac
     done
