@@ -206,22 +206,25 @@ EOF
     done
 }
 
+# Fonction pour afficher un menu sympa
+show_menu() {
+    clear
+    echo -e "\e[1;34m====================================\e[0m"
+    echo -e "\e[1;32m       Menu Principal\e[0m"
+    echo -e "\e[1;34m====================================\e[0m"
+    echo -e "\n1. Créer une nouvelle VM"
+    echo -e "2. Quitter\n"
+    echo -e "\e[1;33mChoisissez une option [1/2] : \e[0m"
+}
+
 # Menu principal
 while true; do
-    echo "Que voulez-vous faire ?"
-    echo "1. Créer une nouvelle VM"
-    echo "2. Quitter le script"
-    read -p "Choisissez une option [1/2] : " choice
+    show_menu
+    read -p "" choice
+
     case $choice in
-        1)
-            create_vm
-            ;;
-        2)
-            echo "Sortie du script."
-            exit 0
-            ;;
-        *)
-            echo "Option invalide. Veuillez choisir 1 ou 2."
-            ;;
+        1) create_vm ;;
+        2) echo -e "\e[1;31mSortie du script.\e[0m" && exit 0 ;;
+        *) echo -e "\e[1;31mOption invalide. Essayez à nouveau.\e[0m" ;;
     esac
 done
