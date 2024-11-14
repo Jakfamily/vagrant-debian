@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # Fonction pour créer une nouvelle VM
+
 create_vm() {
-    # Naviguer vers le répertoire vagrant-vm
-    vagrant_vm_dir="vagrant-vm"
-    mkdir -p "$vagrant_vm_dir" && cd "$vagrant_vm_dir" || { echo "Échec de l'accès au répertoire $vagrant_vm_dir."; return; }
+    #navigation dans le répertoire de la VM
+    vagrant_vm_parent_dir="$HOME/script/vagrant-vm"
+    mkdir -p "$vagrant_vm_parent_dir" || { echo "Échec de la création du répertoire $vagrant_vm_parent_dir."; return; }
+    cd "$vagrant_vm_parent_dir" || { echo "Échec d'accès au répertoire $vagrant_vm_parent_dir."; return; }
 
     # Choisir Debian comme système d'exploitation
     if ! vagrant box list | grep -q "debian/bookworm64"; then
@@ -83,7 +85,7 @@ create_vm() {
 
     # Configuration du provider
     echo -e "\e[1;36mChoisissez le provider : \e[0m"
-    select provider in "virtualbox" "vmware_desktop" "hyper-v"; do
+    select provider in "virtualbox" "vmware_desktop"; do
         case $provider in
             virtualbox|vmware_desktop)
                 echo -e "\e[1;32mVous avez choisi $provider\e[0m"
@@ -191,30 +193,17 @@ Vagrant.configure("2") do |config|
 end
 EOF
 
-    # lancer la vm avec vagrant
-    vagrant up
+    # Lancer la VM avec ou sans GUI en fonction de la configuration choisie
+    if [ "$gui_config" == "false" ]; then
+        echo -e "\e[1;36mLancement de la VM sans interface graphique...\e[0m"
+        vagrant up && vagrant ssh
+    else
+        echo -e "\e[1;36mLancement de la VM avec interface graphique...\e[0m"
+        vagrant up
+    fi
 
     # Fin du script
     echo -e "\e[1;32mLe script est terminé.\e[0m"
-
-    # Demander si l'utilisateur souhaite lancer la VM
-    while true; do
-        echo -e "\e[1;36mSouhaitez-vous lancer la VM ? [y/n] : \e[0m"
-        read choice
-        case $choice in
-            [Yy]* )
-                cd $vm_dir && vagrant ssh
-                break
-                ;;
-            [Nn]* )
-                echo -e "\e[1;33mPassage de l'étape de lancement de la VM...\e[0m"
-                break
-                ;;
-            * )
-                echo -e "\e[1;31mVeuillez répondre par y ou n\e[0m"
-                ;;
-        esac
-    done
 }
 
 # Fonction pour afficher un menu sympa
@@ -228,14 +217,13 @@ show_menu() {
     echo -e "\e[1;33mChoisissez une option [1/2] : \e[0m"
 }
 
-# Menu principal
+# Boucle principale pour afficher le menu
 while true; do
     show_menu
-    read -p "" choice
-
+    read choice
     case $choice in
         1) create_vm ;;
-        2) echo -e "\e[1;31mSortie du script.\e[0m" && exit 0 ;;
-        *) echo -e "\e[1;31mOption invalide. Essayez à nouveau.\e[0m" ;;
+        2) exit 0 ;;
+        *) echo -e "\e[1;31mOption invalide, veuillez choisir 1 ou 2.\e[0m" ;;
     esac
 done
