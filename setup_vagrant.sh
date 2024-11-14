@@ -1,9 +1,8 @@
 #!/bin/bash
 
 # Fonction pour créer une nouvelle VM
-
 create_vm() {
-    #navigation dans le répertoire de la VM
+    # Navigation dans le répertoire de la VM
     vagrant_vm_parent_dir="$HOME/script/vagrant-vm"
     mkdir -p "$vagrant_vm_parent_dir" || { echo "Échec de la création du répertoire $vagrant_vm_parent_dir."; return; }
     cd "$vagrant_vm_parent_dir" || { echo "Échec d'accès au répertoire $vagrant_vm_parent_dir."; return; }
@@ -179,6 +178,11 @@ Vagrant.configure("2") do |config|
     echo "$username:$password" | sudo chpasswd
     sudo usermod -aG sudo $username
 
+    # Configurer la locale en français
+    sudo update-locale LANG=fr_FR.UTF-8
+    sudo locale-gen fr_FR.UTF-8
+    sudo dpkg-reconfigure locales
+
     # Installation de XFCE4 si l'utilisateur a choisi 'y'
     if [ "$xfce_install" == "true" ]; then
       echo "Installation de XFCE4..."
@@ -188,7 +192,6 @@ Vagrant.configure("2") do |config|
 
     sleep 60
     sudo systemctl reboot
-
   SHELL
 end
 EOF
